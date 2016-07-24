@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../starcitizen"
+		}
+	],
+	"settings": {
+        "GoSublime": {
+            "env": {
+                "GOPATH": "C:\\Program Files (x86)\\go_appengine\\goroot;C:\\Users\\Michael\\Go"
+            }
+        }
+    }
+}

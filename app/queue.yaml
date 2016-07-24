@@ -1,0 +1,7 @@
+queue:
+- name: crawl
+  rate: 1/s
+  max_concurrent_requests: 3
+  retry_parameters:
+    min_backoff_seconds: 70
+    max_backoff_seconds: 86400

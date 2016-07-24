@@ -4,6 +4,54 @@
 		"selected_items":
 		[
 			[
+				"histo",
+				"historyIndex	int ν"
+			],
+			[
+				"hist",
+				"historyIndex	int ν"
+			],
+			[
+				"data",
+				"datastoreHistory	*models.CitizenHistory ν"
+			],
+			[
+				"datas",
+				"datastoreHistory	*models.CitizenHistory ν"
+			],
+			[
+				"cur",
+				"currentOrg	*starcitizen.OrgMembership ν"
+			],
+			[
+				"func",
+				"func (*OrganizationMembership)	func (...) {...} ʂ"
+			],
+			[
+				"datasto",
+				"datastoreCitizen	*models.Citizen ν"
+			],
+			[
+				"citize",
+				"citizenOrg	*starcitizen.OrgMembership ν"
+			],
+			[
+				"Organ",
+				"OrganizationMembership	struct ʈ"
+			],
+			[
+				"insert",
+				"insertOrg	error ƒ"
+			],
+			[
+				"Retri",
+				"RetrieveOrganization	*starcitizen.Organization, error ƒ"
+			],
+			[
+				"maybe",
+				"maybeCrawlOrg	error ƒ"
+			],
+			[
 				"memcac",
 				"memcacheItem	*memcache.Item ν"
 			],
@@ -78,10 +126,6 @@
 			[
 				"citiz",
 				"newCitizenHistory	*models.CitizenHistory ν"
-			],
-			[
-				"func",
-				"func (*CitizenHistory)	func (...) {...} ʂ"
 			],
 			[
 				"Stat",
@@ -372,10 +416,30 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 85.0,
-		"last_filter": "lint this",
+		"height": 160.0,
+		"last_filter": "push",
 		"selected_items":
 		[
+			[
+				"push",
+				"Git: Push"
+			],
+			[
+				"git stat",
+				"Git: Status"
+			],
+			[
+				"git status",
+				"Git: Status"
+			],
+			[
+				"git",
+				"Git: Show"
+			],
+			[
+				"status",
+				"Git: Quick Status"
+			],
 			[
 				"lint this",
 				"SublimeLinter: Lint This View"
@@ -389,10 +453,6 @@
 				"Package Control: Install Package"
 			],
 			[
-				"push",
-				"Git: Push"
-			],
-			[
 				"stat",
 				"Git: Status"
 			],
@@ -401,20 +461,12 @@
 				"Git: Diff"
 			],
 			[
-				"status",
-				"Git: Status"
-			],
-			[
 				"comm",
 				"Git: Quick Commit"
 			],
 			[
 				"diff",
 				"Git: Diff"
-			],
-			[
-				"git stat",
-				"Git: Status"
 			],
 			[
 				"remo",
@@ -603,10 +655,12 @@
 	},
 	"file_history":
 	[
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/crawl/crawl_citizen.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/citizen.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/citizen_history.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/crawl/crawl_org.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/citizen.go",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/citizen.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/crawl/crawl_citizen.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/organization.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/app.yaml",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/org_membership.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/org_members.go",
@@ -616,7 +670,6 @@
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/org_test.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/organization.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/common.go",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/citizen_history.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/app.go",
 		"/C/Users/Michael/Go/src/github.com/qedus/nds/put.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/.gitignore",
@@ -729,8 +782,7 @@
 		"/C/Users/Michael/Dropbox/Projects/opencomputers/eeprom_reactor_control.lua",
 		"/H/lua_bios.lua",
 		"/C/Users/Michael/Dropbox/Projects/opencomputers/.sublimelinterrc",
-		"/C/Users/Michael/Dropbox/Projects/opencomputers/opencomputers.sublime-project",
-		"/C/Users/Michael/Downloads/atlauncher/Instances/MyServer/shaderpacks/Sildur's - Enhanced Default/shaders/gbuffers_terrain.vsh"
+		"/C/Users/Michael/Dropbox/Projects/opencomputers/opencomputers.sublime-project"
 	],
 	"find":
 	{
@@ -751,9 +803,28 @@
 	},
 	"find_state":
 	{
-		"case_sensitive": false,
+		"case_sensitive": true,
 		"find_history":
 		[
+			"datstoreHistory",
+			"oldCitizenHistory",
+			"oldCitizen",
+			"citizen",
+			"Citizen",
+			"citizen",
+			"Citizen",
+			"citizen",
+			"Citizen",
+			"citizen",
+			"Citizen",
+			"citizen",
+			"Citizen",
+			"citizen",
+			"Citizen",
+			"citizen",
+			"Citizen",
+			"citizen",
+			"Citizen",
 			"citizenRecrawlDelay",
 			"citizenHandle",
 			"profileURL",
@@ -862,26 +933,7 @@
 			"-f ",
 			"$\\n\\s*beep ",
 			"\\[System\\.Console\\]::Beep\\(([0-9.]+),([0-9.]+)\\)",
-			"\\",
-			"fogmode",
-			"calculateao",
-			"ao",
-			"ssao",
-			"fogmode",
-			"colorTorchlight",
-			"torch",
-			"cloud",
-			"torch",
-			"pi",
-			"PI",
-			"pi",
-			"PI",
-			"leav",
-			"leaf",
-			"tree",
-			"alias",
-			"anti",
-			"name@mail.com"
+			"\\"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -889,6 +941,11 @@
 		"regex": false,
 		"replace_history":
 		[
+			"datstoreHistory",
+			"datastoreCitizen",
+			"storedCitizen",
+			"organization",
+			"Organization",
 			"context.Context",
 			"\"google.golang.org/appengine",
 			"appengine.Context",
@@ -940,7 +997,7 @@
 		"reverse": false,
 		"show_context": true,
 		"use_buffer2": true,
-		"whole_word": false,
+		"whole_word": true,
 		"wrap": true
 	},
 	"incremental_find":

@@ -30,8 +30,8 @@ func crawlOrg(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	}
 	log.Debugf(c, "crawling organization profile: %s", orgSID)
 
-	if strings.ToLower(orgSID) != "sun" {
-		panic("will not crawl non-SUN orgs for now")
+	if lowercaseID := strings.ToLower(orgSID); lowercaseID != "sun" && lowercaseID != "pactinit" {
+		panic("will only crawl PACTINIT and SUN")
 	}
 
 	org, err := starcitizen.RetrieveOrganization(urlfetch.Client(c), orgSID)

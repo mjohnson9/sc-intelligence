@@ -12,8 +12,9 @@ import (
 type CitizenHistory struct {
 	ID int64 `datastore:"-"`
 
-	Handles  []HistoryItem
-	Monikers []HistoryItem
+	Handles       []HistoryItem
+	Monikers      []HistoryItem
+	Organizations []HistoryItem
 }
 
 type HistoryItem struct {

@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -69,17 +70,38 @@ func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
 		return err
 	}
 
+	orgs := make([]string, 0, len(citizen.Organizations))
+
+	for _, citizenOrg := range citizen.Organizations {
+		if citizenOrg.Visibility != "visible" {
+			continue
+		}
+
+		orgs = append(orgs, citizenOrg.SID)
+	}
+
+	sort.Strings(orgs)
+
+	// keep the old organizations for comparison (they're assigned below)
+	var oldOrganizations []string
+
 	if datastoreCitizen == nil {
 		datastoreCitizen = &models.Citizen{
-			ID:      citizen.UEENumber,
-			Handle:  citizen.Handle,
-			Moniker: citizen.Moniker,
+			ID:            citizen.UEENumber,
+			Handle:        citizen.Handle,
+			Moniker:       citizen.Moniker,
+			Organizations: orgs,
 
 			FirstSeen:   curTime,
 			LastUpdated: curTime,
 		}
+
+		oldOrganizations = orgs
 	} else {
 		datastoreCitizen.LastUpdated = curTime
+
+		oldOrganizations = datastoreCitizen.Organizations
+		datastoreCitizen.Organizations = orgs
 	}
 
 	datastoreHistory, err := models.GetCitizenHistory(c, datastoreCitizen.ID)
@@ -88,6 +110,16 @@ func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
 	}
 
 	if datastoreHistory == nil {
+		orgs := make([]models.HistoryItem, len(datastoreCitizen.Organizations))
+
+		for i, sid := range datastoreCitizen.Organizations {
+			orgs[i] = models.HistoryItem{
+				Value:     sid,
+				FirstSeen: curTime,
+				LastSeen:  curTime,
+			}
+		}
+
 		datastoreHistory = &models.CitizenHistory{
 			ID: datastoreCitizen.ID,
 
@@ -106,6 +138,8 @@ func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
 					LastSeen:  curTime,
 				},
 			},
+
+			Organizations: orgs,
 		}
 	}
 
@@ -140,7 +174,38 @@ func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
 		datastoreHistory.Monikers[len(datastoreHistory.Monikers)-1].LastSeen = curTime
 	}
 
-	datastoreCitizen.LastUpdated = curTime
+	for _, currentOrg := range citizen.Organizations {
+		searchIndex := sort.SearchStrings(oldOrganizations, currentOrg.SID)
+		knownOf := (searchIndex < len(oldOrganizations) && oldOrganizations[searchIndex] == currentOrg.SID)
+
+		if knownOf {
+			// they were in this organization in the last crawl; just update the
+			// LastSeen time on the latest history entry
+			historyIndex := -1
+
+			for i := len(datastoreHistory.Organizations) - 1; i >= 0; i-- {
+				if datastoreHistory.Organizations[i].Value == currentOrg.SID {
+					historyIndex = i
+					break
+				}
+			}
+
+			if historyIndex < 0 {
+				panic("strange condition: org is known but not in history")
+			}
+
+			datastoreHistory.Organizations[historyIndex].LastSeen = curTime
+			continue
+		}
+
+		// the citizen was not in this organization in the last crawl; create a
+		// new history entry
+		datastoreHistory.Organizations = append(datastoreHistory.Organizations, models.HistoryItem{
+			Value:     currentOrg.SID,
+			FirstSeen: curTime,
+			LastSeen:  curTime,
+		})
+	}
 
 	err = models.PutCitizen(c, datastoreCitizen)
 	if err != nil {

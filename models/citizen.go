@@ -13,9 +13,10 @@ import (
 )
 
 type Citizen struct {
-	ID      int64  `datastore:"-"`
-	Handle  string `datastore:",noindex"`
-	Moniker string `datastore:",noindex"`
+	ID            int64  `datastore:"-"`
+	Handle        string `datastore:",noindex"`
+	Moniker       string `datastore:",noindex"`
+	Organizations []string
 
 	// HandleSearch is a variable used to search for this citizen by their
 	// handle. It is automatically set by PutCitizen.

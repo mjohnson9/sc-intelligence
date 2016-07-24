@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"runtime/debug"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
@@ -27,12 +28,13 @@ var isDev = appengine.IsDevAppServer()
 func panicHandler(w http.ResponseWriter, req *http.Request, err interface{}) {
 	c := appengine.NewContext(req)
 
-	log.Criticalf(c, "caught panic: (%T) %s", err, err)
+	stack := debug.Stack()
+	log.Criticalf(c, "caught panic:\n(%T) %s\n\n%s", err, err, stack)
 
 	w.WriteHeader(500)
 	if !isDev {
 		io.WriteString(w, "An internal error occurred. It has been logged.")
 	} else {
-		fmt.Fprintf(w, "caught a panic: (type: %T)\n\n%s", err, err)
+		fmt.Fprintf(w, "caught a panic: (type: %T)\n\n%s\n\n%s", err, err, stack)
 	}
 }

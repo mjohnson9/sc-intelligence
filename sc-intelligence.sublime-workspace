@@ -4,8 +4,96 @@
 		"selected_items":
 		[
 			[
+				"memcac",
+				"memcacheItem	*memcache.Item ν"
+			],
+			[
+				"mem",
+				"memcacheItem	*memcache.Item ν"
+			],
+			[
 				"citi",
-				"citizenRecrawlDelay	 Ɩ"
+				"citizen	Citizen ν"
+			],
+			[
+				"Tas",
+				"ErrTaskAlreadyAdded	error ν"
+			],
+			[
+				"page",
+				"pageMembers	[]*OrgMember ν"
+			],
+			[
+				"getOrgM",
+				"getOrgMembersFromDoc	[]*OrgMember ƒ"
+			],
+			[
+				"getOrgMe",
+				"getOrgMembersDoc	*goquery.Document, error ƒ"
+			],
+			[
+				"tot",
+				"totalRowsSuffix	 Ɩ"
+			],
+			[
+				"total",
+				"totalRows	string ν"
+			],
+			[
+				"Retr",
+				"RetrieveOrganization	*Organization, error ƒ"
+			],
+			[
+				"organ",
+				"organization	*Organization ν"
+			],
+			[
+				"oldci",
+				"oldCitizen	*models.Citizen ν"
+			],
+			[
+				"GetC",
+				"GetCitizenHistory	*models.CitizenHistory, error ƒ"
+			],
+			[
+				"oldC",
+				"oldCitizen	*models.Citizen ν"
+			],
+			[
+				"oldCi",
+				"oldCitizenHistory	*models.CitizenHistory ν"
+			],
+			[
+				"Get",
+				"GetCitizenHistory	*models.CitizenHistory, error ƒ"
+			],
+			[
+				"PutCi",
+				"PutCitizenHistory	error ƒ"
+			],
+			[
+				"newci",
+				"newCitizenHistory	*models.CitizenHistory ν"
+			],
+			[
+				"citiz",
+				"newCitizenHistory	*models.CitizenHistory ν"
+			],
+			[
+				"func",
+				"func (*CitizenHistory)	func (...) {...} ʂ"
+			],
+			[
+				"Stat",
+				"StatusCode	int ν"
+			],
+			[
+				"er",
+				"Errorf	 ƒ"
+			],
+			[
+				"I",
+				"IntID	int64 ƒ"
 			],
 			[
 				"ke",
@@ -284,10 +372,50 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 375.0,
-		"last_filter": "remo",
+		"height": 85.0,
+		"last_filter": "lint this",
 		"selected_items":
 		[
+			[
+				"lint this",
+				"SublimeLinter: Lint This View"
+			],
+			[
+				"lint mod",
+				"SublimeLinter: Choose Lint Mode"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"push",
+				"Git: Push"
+			],
+			[
+				"stat",
+				"Git: Status"
+			],
+			[
+				"git diff",
+				"Git: Diff"
+			],
+			[
+				"status",
+				"Git: Status"
+			],
+			[
+				"comm",
+				"Git: Quick Commit"
+			],
+			[
+				"diff",
+				"Git: Diff"
+			],
+			[
+				"git stat",
+				"Git: Status"
+			],
 			[
 				"remo",
 				"Package Control: Remove Package"
@@ -321,20 +449,12 @@
 				"Git: Quick Add"
 			],
 			[
-				"status",
-				"Git: Status"
-			],
-			[
 				"quick comm",
 				"Git: Quick Commit"
 			],
 			[
 				"sublimelint mo",
 				"SublimeLinter: Choose Lint Mode"
-			],
-			[
-				"install",
-				"Package Control: Install Package"
 			],
 			[
 				"sublimelinter mode",
@@ -361,10 +481,6 @@
 				"AutoDocstring: All"
 			],
 			[
-				"git diff",
-				"Git: Diff"
-			],
-			[
 				"autodo",
 				"AutoDocstring: All"
 			],
@@ -383,18 +499,6 @@
 			[
 				"wrap",
 				"Word Wrap: Toggle"
-			],
-			[
-				"comm",
-				"Git: Quick Commit Current File"
-			],
-			[
-				"diff",
-				"Git: Diff Current File"
-			],
-			[
-				"push",
-				"Git: Push"
 			],
 			[
 				"commi",
@@ -499,20 +603,31 @@
 	},
 	"file_history":
 	[
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/citizen.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/crawl/crawl_citizen.go",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/queue.yaml",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/app.go",
-		"/H/sc-intelligence/samples/no-to-hidden.diff",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/crawl/crawl_org.go",
-		"/C/Program Files (x86)/go_appengine/VERSION",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/sc-intelligence.sublime-project",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/main.go",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/citizen.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/citizen.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/app.yaml",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/org_membership.go",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/util/util.go",
-		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/common.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/org_members.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/crawl/task.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/queue.yaml",
 		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/citizen_test.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/org_test.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/organization.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/starcitizen/common.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/models/citizen_history.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/app.go",
+		"/C/Users/Michael/Go/src/github.com/qedus/nds/put.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/app/.gitignore",
+		"/C/Users/Michael/AppData/Roaming/Sublime Text 3/Packages/User/GoSublime.sublime-settings",
+		"/C/Users/Michael/AppData/Roaming/Sublime Text 3/Packages/GoSublime/gsev.py",
+		"/C/Users/Michael/AppData/Roaming/Sublime Text 3/Packages/GoSublime/GoSublime.sublime-settings",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/main.go",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/sc-intelligence.sublime-project",
+		"/H/sc-intelligence/samples/no-to-hidden.diff",
+		"/C/Program Files (x86)/go_appengine/VERSION",
+		"/C/Users/Michael/Go/src/github.com/nightexcessive/sc-intelligence/util/util.go",
 		"/H/sun.nq",
 		"/H/sc_intel_scraper/sc_intel_scraper/spiders/rsi_spider.py",
 		"/C/Users/Michael/AppData/Roaming/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
@@ -615,18 +730,7 @@
 		"/H/lua_bios.lua",
 		"/C/Users/Michael/Dropbox/Projects/opencomputers/.sublimelinterrc",
 		"/C/Users/Michael/Dropbox/Projects/opencomputers/opencomputers.sublime-project",
-		"/C/Users/Michael/Downloads/atlauncher/Instances/MyServer/shaderpacks/Sildur's - Enhanced Default/shaders/gbuffers_terrain.vsh",
-		"/I/New World/computer/1/DEReactorCon",
-		"/C/Users/Michael/Downloads/atlauncher/Instances/MyServer/saves/New World/computer/1/pid",
-		"/C/Program Files (x86)/Lua/5.1/luacheck.lua.bat",
-		"/C/Users/Michael/AppData/Roaming/Sublime Text 3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
-		"/C/Program Files (x86)/Lua/5.1/rocks/manifest",
-		"/C/Users/Michael/test/lib/luarocks/rocks/manifest",
-		"/C/Program Files (x86)/Lua/5.1/lua/luarocks/fs/win32/tools.lua",
-		"/C/Program Files (x86)/Lua/5.1/lua/luarocks/fs.lua",
-		"/C/Program Files (x86)/Lua/5.1/lua/luarocks/fs/lua.lua",
-		"/C/Users/Michael/Downloads/luafilesystem-1.6.3-2.src.rock",
-		"/C/Users/Michael/AppData/Roaming/Sublime Text 3/Packages/Lua Dev/Lua Dev.sublime-settings"
+		"/C/Users/Michael/Downloads/atlauncher/Instances/MyServer/shaderpacks/Sildur's - Enhanced Default/shaders/gbuffers_terrain.vsh"
 	],
 	"find":
 	{
@@ -650,6 +754,17 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"citizenRecrawlDelay",
+			"citizenHandle",
+			"profileURL",
+			"profileURLFormat",
+			"memberItems",
+			".each",
+			"GenerateCitizenHistoryKey",
+			"generateCitizenHistoryKey",
+			"GenerateCitizenKey",
+			"generateCitizenKey",
+			"\"appengine",
 			"appengine.Context",
 			"\"appengine",
 			"context",
@@ -766,18 +881,7 @@
 			"tree",
 			"alias",
 			"anti",
-			"name@mail.com",
-			"[ ]{2,8}",
-			"^\\s+}",
-			"([^ ]){$",
-			"[^ ]{$",
-			"^\\s+}",
-			" {2,8}",
-			"\\s{8}",
-			"localhost",
-			"^\\s+}",
-			"rom \\( name \"(.*?)\\s+(?:\\(.*?\\)\\s*)+.([a-zA-Z0-9]+)\" ",
-			"rom name=\"(.*?)\\s+(?:\\(.*?\\)\\s*)+.iso\" "
+			"name@mail.com"
 		],
 		"highlight": true,
 		"in_selection": false,

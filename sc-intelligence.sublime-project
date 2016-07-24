@@ -8,10 +8,10 @@
 		}
 	],
 	"settings": {
-        "GoSublime": {
+        /*"GoSublime": {
             "env": {
                 "GOPATH": "C:\\Program Files (x86)\\go_appengine\\goroot;C:\\Users\\Michael\\Go"
             }
-        }
+        }*/
     }
 }

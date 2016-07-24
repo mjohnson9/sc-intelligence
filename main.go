@@ -1,4 +1,4 @@
-package sc_intelligence
+package scintelligence
 
 import (
 	"github.com/julienschmidt/httprouter"

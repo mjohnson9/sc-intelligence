@@ -416,10 +416,22 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 160.0,
-		"last_filter": "push",
+		"height": 185.0,
+		"last_filter": "git pus",
 		"selected_items":
 		[
+			[
+				"git pus",
+				"Git: Push"
+			],
+			[
+				"stat",
+				"Git: Status"
+			],
+			[
+				"status",
+				"Git: Status"
+			],
 			[
 				"push",
 				"Git: Push"
@@ -437,10 +449,6 @@
 				"Git: Show"
 			],
 			[
-				"status",
-				"Git: Quick Status"
-			],
-			[
 				"lint this",
 				"SublimeLinter: Lint This View"
 			],
@@ -451,10 +459,6 @@
 			[
 				"install",
 				"Package Control: Install Package"
-			],
-			[
-				"stat",
-				"Git: Status"
 			],
 			[
 				"git diff",
@@ -487,10 +491,6 @@
 			[
 				"remov",
 				"Package Control: Remove Package"
-			],
-			[
-				"git pus",
-				"Git: Push"
 			],
 			[
 				"quick co",

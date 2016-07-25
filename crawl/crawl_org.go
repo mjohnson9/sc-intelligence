@@ -55,7 +55,7 @@ func crawlOrg(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	}
 
 	for _, member := range members {
-		err := maybeCrawlCitizen(c, member.Handle)
+		err = maybeCrawlCitizen(c, member.Handle)
 		if err != nil {
 			panic(err)
 		}
@@ -66,19 +66,6 @@ func crawlOrg(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func insertOrg(c context.Context, org *starcitizen.Organization) error {
-	curTime := time.Now()
-
-	newOrg := &models.Organization{
-		ID: org.SID,
-
-		FirstSeen:   curTime,
-		LastUpdated: curTime,
-	}
-
-	return models.PutOrganization(c, newOrg)
 }
 
 func updateOrg(c context.Context, org *starcitizen.Organization) error {

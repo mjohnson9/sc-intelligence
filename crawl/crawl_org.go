@@ -2,14 +2,13 @@ package crawl
 
 import (
 	"io"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"golang.org/x/net/context"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gin-gonic/gin"
 	"github.com/nightexcessive/sc-intelligence/models"
 	"github.com/nightexcessive/starcitizen"
 	"github.com/qedus/nds"
@@ -19,13 +18,13 @@ import (
 	"google.golang.org/appengine/urlfetch"
 )
 
-func crawlOrg(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	c := appengine.NewContext(req)
+func crawlOrg(g *gin.Context) {
+	c := appengine.NewContext(g.Request)
 
-	orgSID := req.FormValue("org")
+	orgSID := g.PostForm("org")
 	if len(orgSID) == 0 {
-		w.WriteHeader(400)
-		io.WriteString(w, "\"org\" is a required POST value for this task")
+		g.AbortWithStatus(400)
+		io.WriteString(g.Writer, "\"org\" is a required POST value for this task")
 		return
 	}
 	log.Debugf(c, "crawling organization profile: %s", orgSID)

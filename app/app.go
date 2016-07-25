@@ -5,15 +5,15 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gin-gonic/gin"
 	app "github.com/nightexcessive/sc-intelligence"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 )
 
 func init() {
-	router := httprouter.New()
-	router.PanicHandler = panicHandler
+	router := gin.New()
+	router.Use(panicHandler)
 
 	app.RegisterHandlers(router)
 
@@ -22,16 +22,25 @@ func init() {
 
 var isDev = appengine.IsDevAppServer()
 
-func panicHandler(w http.ResponseWriter, req *http.Request, err interface{}) {
-	c := appengine.NewContext(req)
+func panicHandler(ginContext *gin.Context) {
+	defer func() {
+		panicErr := recover()
+		if panicErr == nil {
+			return
+		}
 
-	stackTrace := buildStack(4)
-	log.Criticalf(c, "%s\n\n%s", err, stackTrace)
+		c := appengine.NewContext(ginContext.Request)
 
-	w.WriteHeader(500)
-	if !isDev {
-		io.WriteString(w, "An internal error occurred. It has been logged.")
-	} else {
-		fmt.Fprintf(w, "caught a panic: (type: %T)\n\n%s\n\n%s", err, err, stackTrace)
-	}
+		stackTrace := buildStack(2)
+		log.Criticalf(c, "%s\n\n%s", panicErr, stackTrace)
+
+		ginContext.AbortWithStatus(500)
+		if !isDev {
+			io.WriteString(ginContext.Writer, "An internal error occurred. It has been logged.")
+		} else {
+			fmt.Fprintf(ginContext.Writer, "caught a panic: (type: %T)\n\n%s\n\n%s", panicErr, panicErr, stackTrace)
+		}
+	}()
+
+	ginContext.Next()
 }

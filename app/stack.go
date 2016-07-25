@@ -11,7 +11,7 @@ func buildStack(skip int) []byte {
 	}
 
 	// skip ourselves, too
-	skip++
+	skip += 2
 
 	stackTrace := strings.Split(string(debug.Stack()), "\n")
 

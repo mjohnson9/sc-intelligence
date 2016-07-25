@@ -2,13 +2,12 @@ package crawl
 
 import (
 	"io"
-	"net/http"
 	"net/url"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gin-gonic/gin"
 	"github.com/nightexcessive/sc-intelligence/models"
 	"github.com/nightexcessive/starcitizen"
 	"github.com/qedus/nds"
@@ -20,13 +19,13 @@ import (
 	"google.golang.org/appengine/urlfetch"
 )
 
-func crawlCitizen(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	c := appengine.NewContext(req)
+func crawlCitizen(g *gin.Context) {
+	c := appengine.NewContext(g.Request)
 
-	citizenHandle := req.FormValue("citizen")
+	citizenHandle := g.PostForm("citizen")
 	if len(citizenHandle) == 0 {
-		w.WriteHeader(400)
-		io.WriteString(w, "\"citizen\" is a required POST value for this task")
+		g.AbortWithStatus(400)
+		io.WriteString(g.Writer, "\"citizen\" is a required POST value for this task")
 		return
 	}
 	log.Debugf(c, "crawling citizen profile: %s", citizenHandle)

@@ -1,9 +1,9 @@
 package crawl
 
-import "github.com/julienschmidt/httprouter"
+import "github.com/gin-gonic/gin"
 
 // RegisterHandlers registers all handles for the crawl module
-func RegisterHandlers(router *httprouter.Router) {
+func RegisterHandlers(router *gin.Engine) {
 	router.POST("/task/crawl/citizen", crawlCitizen)
 	router.POST("/task/crawl/org", crawlOrg)
 }

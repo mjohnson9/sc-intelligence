@@ -28,6 +28,6 @@ handlers:
   secure: always
 
 - url: /.*
-  login: required
+  login: admin
   script: _go_app
   secure: always

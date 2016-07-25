@@ -47,6 +47,10 @@ func crawlCitizen(w http.ResponseWriter, req *http.Request, _ httprouter.Params)
 	}
 
 	for _, org := range citizen.Organizations {
+		if len(org.SID) == 0 {
+			continue
+		}
+
 		err = maybeCrawlOrg(c, org.SID)
 		if err != nil {
 			panic(err)
@@ -218,7 +222,7 @@ func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
 	}
 
 	t := createCitizenRecrawlTask(datastoreCitizen.Handle)
-	_, err = taskqueue.Add(c, t, "crawl")
+	_, err = taskqueue.Add(c, t, "crawl-citizen")
 	if err != nil {
 		return err
 	}
@@ -304,7 +308,7 @@ func maybeCrawlCitizen(c context.Context, handle string) error {
 	task.Delay = time.Duration(0)
 	task.Name = "citizen-first-crawl-" + strings.ToLower(handle)
 
-	_, err = taskqueue.Add(c, task, "crawl")
+	_, err = taskqueue.Add(c, task, "crawl-citizen")
 	if err == taskqueue.ErrTaskAlreadyAdded {
 		return nil
 	} else if err != nil {

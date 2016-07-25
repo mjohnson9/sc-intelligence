@@ -1,7 +1,21 @@
 queue:
 - name: crawl
+  rate: 4/s
+  max_concurrent_requests: 16
+  retry_parameters:
+    min_backoff_seconds: 70
+    max_backoff_seconds: 86400
+
+- name: crawl-citizen
   rate: 1/s
-  max_concurrent_requests: 1
+  max_concurrent_requests: 3
+  retry_parameters:
+    min_backoff_seconds: 70
+    max_backoff_seconds: 86400
+
+- name: crawl-org
+  rate: 1/s
+  max_concurrent_requests: 2
   retry_parameters:
     min_backoff_seconds: 70
     max_backoff_seconds: 86400

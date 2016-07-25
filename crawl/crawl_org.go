@@ -30,9 +30,9 @@ func crawlOrg(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	}
 	log.Debugf(c, "crawling organization profile: %s", orgSID)
 
-	if lowercaseID := strings.ToLower(orgSID); lowercaseID != "sun" && lowercaseID != "pactinit" {
+	/*if lowercaseID := strings.ToLower(orgSID); lowercaseID != "sun" && lowercaseID != "pactinit" {
 		panic("will only crawl PACTINIT and SUN")
-	}
+	}*/
 
 	org, err := starcitizen.RetrieveOrganization(urlfetch.Client(c), orgSID)
 	if err == starcitizen.ErrMissing {
@@ -62,7 +62,7 @@ func crawlOrg(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	}
 
 	task := createOrgRecrawlTask(orgSID)
-	_, err = taskqueue.Add(c, task, "crawl")
+	_, err = taskqueue.Add(c, task, "crawl-org")
 	if err != nil {
 		panic(err)
 	}
@@ -131,7 +131,7 @@ func maybeCrawlOrg(c context.Context, spectrumID string) error {
 	task.Delay = time.Duration(0)
 	task.Name = "org-first-crawl-" + strings.ToLower(spectrumID)
 
-	_, err = taskqueue.Add(c, task, "crawl")
+	_, err = taskqueue.Add(c, task, "crawl-org")
 	if err == taskqueue.ErrTaskAlreadyAdded {
 		log.Debugf(c, "didn't add org %q to the crawl queue: already in the queue", spectrumID)
 		return nil

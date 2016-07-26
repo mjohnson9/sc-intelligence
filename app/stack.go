@@ -16,15 +16,10 @@ func buildStack(skip int) []byte {
 	stackTrace := strings.Split(string(debug.Stack()), "\n")
 
 	if strings.HasPrefix(stackTrace[0], "goroutine ") {
-		stackTrace = stackTrace[1:]
+		stackTrace = append(stackTrace[:1], stackTrace[(skip*2+1):]...)
+	} else {
+		stackTrace = stackTrace[skip*2:]
 	}
-
-	if len(stackTrace) <= skip*2 {
-		// stack trace would be empty; give full stack trace
-		return []byte(strings.Join(stackTrace, "\n"))
-	}
-
-	stackTrace = stackTrace[skip*2:]
 
 	return []byte(strings.Join(stackTrace, "\n"))
 }

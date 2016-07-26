@@ -11,7 +11,15 @@ import (
 	"google.golang.org/appengine/log"
 )
 
+var isDev = appengine.IsDevAppServer()
+
 func init() {
+	if isDev {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	router := gin.New()
 	router.Use(panicHandler)
 
@@ -19,8 +27,6 @@ func init() {
 
 	http.Handle("/", router)
 }
-
-var isDev = appengine.IsDevAppServer()
 
 func panicHandler(ginContext *gin.Context) {
 	defer func() {

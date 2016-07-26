@@ -3,46 +3,27 @@ package models
 import (
 	"time"
 
-	"github.com/qedus/nds"
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine/datastore"
 )
 
+const (
+	ChangedCrawl     int16 = 1
+	ChangedHandle    int16 = 2
+	ChangedMoniker   int16 = 3
+	ChangedOrgJoined int16 = 4
+	ChangedOrgLeft   int16 = 5
+)
+
 type CitizenHistory struct {
-	ID int64 `datastore:"-"`
+	key *datastore.Key `datastore:"-"`
 
-	Handles       []HistoryItem
-	Monikers      []HistoryItem
-	Organizations []HistoryItem
+	WhatChanged int16
+	NewValue    string
+	Timestamp   time.Time
 }
 
-type HistoryItem struct {
-	Value     string
-	FirstSeen time.Time
-	LastSeen  time.Time
-}
-
-func GetCitizenHistory(c context.Context, id int64) (*CitizenHistory, error) {
-	var citizenHistory CitizenHistory
-
-	err := nds.Get(c, GenerateCitizenHistoryKey(c, id), &citizenHistory)
-	if err == datastore.ErrNoSuchEntity {
-		return nil, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	citizenHistory.ID = id
-
-	return &citizenHistory, nil
-}
-
-func PutCitizenHistory(c context.Context, citizenHistory *CitizenHistory) error {
-	_, err := nds.Put(c, GenerateCitizenHistoryKey(c, citizenHistory.ID), citizenHistory)
-	return err
-}
-
-func GenerateCitizenHistoryKey(c context.Context, id int64) *datastore.Key {
-	return datastore.NewKey(c, "CitizenHistory", "", id, nil)
+func generateCitizenHistoryItemKey(c context.Context, id int64) *datastore.Key {
+	return datastore.NewIncompleteKey(c, "CitizenHistory", generateCitizenKey(c, id))
 }

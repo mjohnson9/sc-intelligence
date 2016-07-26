@@ -1,6 +1,7 @@
 package crawl
 
 import (
+	"fmt"
 	"io"
 	"net/url"
 	"sort"
@@ -28,6 +29,7 @@ func crawlCitizen(g *gin.Context) {
 		io.WriteString(g.Writer, "\"citizen\" is a required POST value for this task")
 		return
 	}
+
 	log.Debugf(c, "crawling citizen profile: %s", citizenHandle)
 
 	citizen, err := starcitizen.RetrieveCitizen(urlfetch.Client(c), citizenHandle)
@@ -45,8 +47,8 @@ func crawlCitizen(g *gin.Context) {
 		panic(err)
 	}
 
-	for _, org := range citizen.Organizations {
-		if len(org.SID) == 0 {
+	/*for _, org := range citizen.Organizations {
+		if len(org.SID) == 0 || org.SID != "SUN" {
 			continue
 		}
 
@@ -54,7 +56,7 @@ func crawlCitizen(g *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
-	}
+	}*/
 
 	log.Debugf(c, "updating citizen")
 	err = nds.RunInTransaction(c, func(tc context.Context) error {
@@ -66,13 +68,74 @@ func crawlCitizen(g *gin.Context) {
 }
 
 func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
-	curTime := time.Now()
-
 	datastoreCitizen, err := models.GetCitizen(c, citizen.UEENumber)
 	if err != nil {
 		return err
 	}
 
+	if datastoreCitizen == nil {
+		return insertNewCitizen(c, citizen)
+	}
+
+	return fmt.Errorf("not yet implemented")
+}
+
+func insertNewCitizen(c context.Context, citizen *starcitizen.Citizen) error {
+	curTime := time.Now()
+
+	newCitizen := &models.Citizen{
+		ID:            citizen.UEENumber,
+		Handle:        citizen.Handle,
+		Moniker:       citizen.Moniker,
+		Organizations: makeOrgList(citizen),
+	}
+
+	historyItems := make([]*models.CitizenHistory, 0, len(citizen.Organizations)+3)
+
+	historyItems = append(historyItems,
+		&models.CitizenHistory{
+			WhatChanged: models.ChangedCrawl,
+			Timestamp:   curTime,
+		},
+		&models.CitizenHistory{
+			WhatChanged: models.ChangedHandle,
+			NewValue:    newCitizen.Handle,
+			Timestamp:   curTime,
+		},
+		&models.CitizenHistory{
+			WhatChanged: models.ChangedMoniker,
+			NewValue:    newCitizen.Moniker,
+			Timestamp:   curTime,
+		})
+
+	for _, org := range newCitizen.Organizations {
+		historyItems = append(historyItems, &models.CitizenHistory{
+			WhatChanged: models.ChangedOrgJoined,
+			NewValue:    org,
+			Timestamp:   curTime,
+		})
+	}
+
+	/*err := clearCitizenMoniker(c, newCitizen.Handle)
+	if err != nil {
+		return err
+	}*/
+
+	err := models.PutCitizen(c, newCitizen, historyItems, true)
+	if err != nil {
+		return err
+	}
+
+	t := createCitizenRecrawlTask(newCitizen.Handle)
+	_, err = taskqueue.Add(c, t, "crawl-citizen")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func makeOrgList(citizen *starcitizen.Citizen) []string {
 	orgs := make([]string, 0, len(citizen.Organizations))
 
 	for _, citizenOrg := range citizen.Organizations {
@@ -85,153 +148,39 @@ func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
 
 	sort.Strings(orgs)
 
-	// keep the old organizations for comparison (they're assigned below)
-	var oldOrganizations []string
+	return orgs
+}
 
-	if datastoreCitizen == nil {
-		datastoreCitizen = &models.Citizen{
-			ID:            citizen.UEENumber,
-			Handle:        citizen.Handle,
-			Moniker:       citizen.Moniker,
-			Organizations: orgs,
+func hasOrg(orgs []string, org string) bool {
+	index := sort.SearchStrings(orgs, org)
 
-			FirstSeen:   curTime,
-			LastUpdated: curTime,
-		}
-
-		oldOrganizations = orgs
-	} else {
-		datastoreCitizen.LastUpdated = curTime
-
-		oldOrganizations = datastoreCitizen.Organizations
-		datastoreCitizen.Organizations = orgs
+	if index >= len(orgs) {
+		return false
 	}
 
-	datastoreHistory, err := models.GetCitizenHistory(c, datastoreCitizen.ID)
-	if err != nil {
-		return err
-	}
+	return (orgs[index] == org)
+}
 
-	if datastoreHistory == nil {
-		orgs := make([]models.HistoryItem, len(datastoreCitizen.Organizations))
+func compareOrgs(oldOrgs, currentOrgs []string) (added []string, removed []string) {
+	added = make([]string, 0, len(currentOrgs))
+	removed = make([]string, 0, len(oldOrgs))
 
-		for i, sid := range datastoreCitizen.Organizations {
-			orgs[i] = models.HistoryItem{
-				Value:     sid,
-				FirstSeen: curTime,
-				LastSeen:  curTime,
-			}
-		}
-
-		datastoreHistory = &models.CitizenHistory{
-			ID: datastoreCitizen.ID,
-
-			Handles: []models.HistoryItem{
-				models.HistoryItem{
-					Value:     citizen.Handle,
-					FirstSeen: curTime,
-					LastSeen:  curTime,
-				},
-			},
-
-			Monikers: []models.HistoryItem{
-				models.HistoryItem{
-					Value:     citizen.Moniker,
-					FirstSeen: curTime,
-					LastSeen:  curTime,
-				},
-			},
-
-			Organizations: orgs,
+	for _, org := range currentOrgs {
+		if !hasOrg(oldOrgs, org) {
+			added = append(added, org)
 		}
 	}
 
-	if datastoreCitizen.Handle != citizen.Handle {
-		err = clearCitizenMoniker(c, citizen.Handle)
-		if err != nil {
-			return err
+	for _, org := range oldOrgs {
+		if !hasOrg(currentOrgs, org) {
+			removed = append(removed, org)
 		}
-
-		datastoreCitizen.Handle = citizen.Handle
-
-		datastoreHistory.Handles = append(datastoreHistory.Handles,
-			models.HistoryItem{
-				Value:     citizen.Handle,
-				FirstSeen: curTime,
-				LastSeen:  curTime,
-			})
-	} else {
-		datastoreHistory.Handles[len(datastoreHistory.Handles)-1].LastSeen = curTime
 	}
 
-	if datastoreCitizen.Moniker != citizen.Moniker {
-		datastoreCitizen.Moniker = citizen.Moniker
-
-		datastoreHistory.Monikers = append(datastoreHistory.Monikers,
-			models.HistoryItem{
-				Value:     citizen.Moniker,
-				FirstSeen: curTime,
-				LastSeen:  curTime,
-			})
-	} else {
-		datastoreHistory.Monikers[len(datastoreHistory.Monikers)-1].LastSeen = curTime
-	}
-
-	for _, currentOrg := range citizen.Organizations {
-		searchIndex := sort.SearchStrings(oldOrganizations, currentOrg.SID)
-		knownOf := (searchIndex < len(oldOrganizations) && oldOrganizations[searchIndex] == currentOrg.SID)
-
-		if knownOf {
-			// they were in this organization in the last crawl; just update the
-			// LastSeen time on the latest history entry
-			historyIndex := -1
-
-			for i := len(datastoreHistory.Organizations) - 1; i >= 0; i-- {
-				if datastoreHistory.Organizations[i].Value == currentOrg.SID {
-					historyIndex = i
-					break
-				}
-			}
-
-			if historyIndex < 0 {
-				panic("strange condition: org is known but not in history")
-			}
-
-			datastoreHistory.Organizations[historyIndex].LastSeen = curTime
-			continue
-		}
-
-		// the citizen was not in this organization in the last crawl; create a
-		// new history entry
-		datastoreHistory.Organizations = append(datastoreHistory.Organizations, models.HistoryItem{
-			Value:     currentOrg.SID,
-			FirstSeen: curTime,
-			LastSeen:  curTime,
-		})
-	}
-
-	err = models.PutCitizen(c, datastoreCitizen)
-	if err != nil {
-		return err
-	}
-
-	err = models.PutCitizenHistory(c, datastoreHistory)
-	if err != nil {
-		return err
-	}
-
-	t := createCitizenRecrawlTask(datastoreCitizen.Handle)
-	_, err = taskqueue.Add(c, t, "crawl-citizen")
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return
 }
 
 func clearCitizenMoniker(c context.Context, handle string) error {
-	curTime := time.Now()
-
 	citizen, err := models.FindCitizenByHandle(c, handle)
 	if err != nil {
 		return err
@@ -250,27 +199,13 @@ func clearCitizenMoniker(c context.Context, handle string) error {
 		return nil
 	}
 
-	citizenHistory, err := models.GetCitizenHistory(c, citizen.ID)
-	if err != nil {
-		return err
+	newHistoryItem := &models.CitizenHistory{
+		WhatChanged: models.ChangedHandle,
+		NewValue:    "",
+		Timestamp:   time.Now(),
 	}
 
-	citizenHistory.Handles = append(citizenHistory.Handles,
-		models.HistoryItem{
-			Value:     "",
-			FirstSeen: curTime,
-			LastSeen:  curTime,
-		})
-
-	citizen.Handle = ""
-	citizen.LastUpdated = curTime
-
-	err = models.PutCitizen(c, citizen)
-	if err != nil {
-		return err
-	}
-
-	err = models.PutCitizenHistory(c, citizenHistory)
+	err = models.PutCitizen(c, citizen, []*models.CitizenHistory{newHistoryItem}, false)
 	if err != nil {
 		return err
 	}

@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/binary"
 	"strings"
-	"time"
 
 	"github.com/qedus/nds"
 	"golang.org/x/net/context"
@@ -22,15 +21,12 @@ type Citizen struct {
 	// handle. It is automatically set by PutCitizen.
 	HandleSearch   string
 	originalHandle string `datastore:"-"`
-
-	FirstSeen   time.Time
-	LastUpdated time.Time
 }
 
 func GetCitizen(c context.Context, id int64) (*Citizen, error) {
 	var citizen Citizen
 
-	err := nds.Get(c, GenerateCitizenKey(c, id), &citizen)
+	err := nds.Get(c, generateCitizenKey(c, id), &citizen)
 	if err == datastore.ErrNoSuchEntity {
 		return nil, nil
 	} else if err != nil {
@@ -43,12 +39,45 @@ func GetCitizen(c context.Context, id int64) (*Citizen, error) {
 	return &citizen, nil
 }
 
-func PutCitizen(c context.Context, citizen *Citizen) error {
-	citizen.HandleSearch = strings.ToLower(citizen.Handle)
+func PutCitizen(c context.Context, citizen *Citizen, historyItems []*CitizenHistory, saveCitizen bool) error {
+	keys := make([]*datastore.Key, 0, len(historyItems)+1)
+	toStore := make([]interface{}, 0, len(historyItems)+1)
 
-	_, err := nds.Put(c, GenerateCitizenKey(c, citizen.ID), citizen)
+	if saveCitizen {
+		citizen.HandleSearch = strings.ToLower(citizen.Handle)
+
+		keys = append(keys, generateCitizenKey(c, citizen.ID))
+		toStore = append(toStore, citizen)
+	}
+
+	for _, historyItem := range historyItems {
+		if historyItem.key == nil {
+			historyItem.key = generateCitizenHistoryItemKey(c, citizen.ID)
+		}
+
+		keys = append(keys, historyItem.key)
+		toStore = append(toStore, historyItem)
+	}
+
+	if len(keys) == 0 {
+		return nil
+	}
+
+	newKeys, err := nds.PutMulti(c, keys, toStore)
+
+	if newKeys != nil {
+		if saveCitizen {
+			newKeys = newKeys[1:]
+		}
+
+		// update the history items' keys
+		for i, historyItem := range historyItems {
+			historyItem.key = newKeys[i]
+		}
+	}
 
 	if err == nil && citizen.Handle != citizen.originalHandle {
+		// remove this citizen's handle from the handle-to-ID cache
 		memcache.Delete(c, "handle-to-id:"+strings.ToLower(citizen.originalHandle))
 		citizen.originalHandle = citizen.Handle
 	}
@@ -90,6 +119,6 @@ func FindCitizenByHandle(c context.Context, handle string) (*Citizen, error) {
 	return GetCitizen(c, id)
 }
 
-func GenerateCitizenKey(c context.Context, id int64) *datastore.Key {
+func generateCitizenKey(c context.Context, id int64) *datastore.Key {
 	return datastore.NewKey(c, "Citizen", "", id, nil)
 }

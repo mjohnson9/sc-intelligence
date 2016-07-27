@@ -1,7 +1,6 @@
 package crawl
 
 import (
-	"fmt"
 	"io"
 	"net/url"
 	"sort"
@@ -14,7 +13,6 @@ import (
 	"github.com/qedus/nds"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
-	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 	"google.golang.org/appengine/urlfetch"
@@ -47,8 +45,8 @@ func crawlCitizen(g *gin.Context) {
 		panic(err)
 	}
 
-	/*for _, org := range citizen.Organizations {
-		if len(org.SID) == 0 || org.SID != "SUN" {
+	for _, org := range citizen.Organizations {
+		if len(org.SID) == 0 {
 			continue
 		}
 
@@ -56,18 +54,18 @@ func crawlCitizen(g *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
-	}*/
+	}
 
 	log.Debugf(c, "updating citizen")
 	err = nds.RunInTransaction(c, func(tc context.Context) error {
-		return updateCitizen(tc, citizen)
-	}, &datastore.TransactionOptions{XG: true})
+		return tryCitizenUpdate(tc, citizen)
+	}, nil)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
+func tryCitizenUpdate(c context.Context, citizen *starcitizen.Citizen) error {
 	datastoreCitizen, err := models.GetCitizen(c, citizen.UEENumber)
 	if err != nil {
 		return err
@@ -77,7 +75,75 @@ func updateCitizen(c context.Context, citizen *starcitizen.Citizen) error {
 		return insertNewCitizen(c, citizen)
 	}
 
-	return fmt.Errorf("not yet implemented")
+	return updateExistingCitizen(c, citizen, datastoreCitizen)
+}
+
+func updateExistingCitizen(c context.Context, citizen *starcitizen.Citizen, datastoreCitizen *models.Citizen) error {
+	curTime := time.Now()
+
+	historyItems := make([]*models.CitizenHistory, 1)
+	historyItems[0] = &models.CitizenHistory{
+		WhatChanged: models.ChangedCrawl,
+		Timestamp:   curTime,
+	}
+
+	citizenUpdated := false
+
+	newOrgList := makeOrgList(citizen)
+
+	if orgsAdded, orgsRemoved := compareOrgs(datastoreCitizen.Organizations, newOrgList); len(orgsAdded) > 0 || len(orgsRemoved) > 0 {
+		for _, orgAdded := range orgsAdded {
+			historyItems = append(historyItems, &models.CitizenHistory{
+				WhatChanged: models.ChangedOrgJoined,
+				NewValue:    orgAdded,
+				Timestamp:   curTime,
+			})
+		}
+
+		for _, orgRemoved := range orgsRemoved {
+			historyItems = append(historyItems, &models.CitizenHistory{
+				WhatChanged: models.ChangedOrgLeft,
+				NewValue:    orgRemoved,
+				Timestamp:   curTime,
+			})
+		}
+
+		datastoreCitizen.Organizations = newOrgList
+
+		citizenUpdated = true
+	}
+
+	if datastoreCitizen.Handle != citizen.Handle {
+		historyItems = append(historyItems, &models.CitizenHistory{
+			WhatChanged: models.ChangedHandle,
+			NewValue:    citizen.Handle,
+			Timestamp:   curTime,
+		})
+
+		datastoreCitizen.Handle = citizen.Handle
+		citizenUpdated = true
+	}
+
+	if datastoreCitizen.Moniker != citizen.Moniker {
+		historyItems = append(historyItems, &models.CitizenHistory{
+			WhatChanged: models.ChangedMoniker,
+			NewValue:    citizen.Moniker,
+			Timestamp:   curTime,
+		})
+
+		datastoreCitizen.Moniker = citizen.Moniker
+		citizenUpdated = true
+	}
+
+	err := models.PutCitizen(c, datastoreCitizen, historyItems, citizenUpdated)
+	if err != nil {
+		return err
+	}
+
+	t := createCitizenRecrawlTask(datastoreCitizen.Handle)
+	_, err = taskqueue.Add(c, t, "crawl-citizen")
+
+	return err
 }
 
 func insertNewCitizen(c context.Context, citizen *starcitizen.Citizen) error {

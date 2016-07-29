@@ -7,7 +7,7 @@ queue:
     max_backoff_seconds: 86400
 
 - name: crawl-org
-  rate: 1/d
+  rate: 6/d
   max_concurrent_requests: 1
   retry_parameters:
     min_backoff_seconds: 70

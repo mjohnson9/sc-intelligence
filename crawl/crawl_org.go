@@ -48,6 +48,12 @@ func crawlOrg(g *gin.Context) {
 		panic(err)
 	}
 
+	task := createOrgRecrawlTask(orgSID)
+	_, err = taskqueue.Add(c, task, "crawl-org")
+	if err != nil {
+		panic(err)
+	}
+
 	members, err := starcitizen.RetrieveOrganizationMembers(urlfetch.Client(c), orgSID)
 	if err != nil {
 		panic(err)
@@ -58,12 +64,6 @@ func crawlOrg(g *gin.Context) {
 		if err != nil {
 			panic(err)
 		}
-	}
-
-	task := createOrgRecrawlTask(orgSID)
-	_, err = taskqueue.Add(c, task, "crawl-org")
-	if err != nil {
-		panic(err)
 	}
 }
 
